@@ -20,6 +20,18 @@ function Home() {
       .catch(error => console.error('Error fetching trending repos:', error));
   }, []);
 
+  function wordWrap(text, wordsPerLine = 8) {
+    const words = text.split(' ');
+    let wrappedText = [];
+
+    for (let i = 0; i < words.length; i += wordsPerLine) {
+      wrappedText.push(words.slice(i, i + wordsPerLine).join(' '));
+    }
+
+    return wrappedText;
+  }
+
+
   return (
     <>
 
@@ -243,87 +255,44 @@ function Home() {
                     </div>
                   </div>
 
-                  <div className="col-md-6 col-lg-4 order-2 mb-4">
-                    <div className="card h-100">
-                      <div className="card-header d-flex align-items-center justify-content-between">
-                        <h5 className="card-title m-0 me-2">Trending Repos</h5>
-                        <div className="dropdown">
-                          <button
-                            className="btn p-0"
-                            type="button"
-                            id="transactionID"
-                            data-bs-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                          >
-                            <i className='bx bx-git-repo-forked'></i>
-                          </button>
-                          
-                        </div>
-                      </div>
-                      <div className="card-body">
-                        <ul className="p-0 m-0">
-                          {trendingRepos.map((repo, index) => (
-                            <li key={index} className="d-flex mb-4 pb-1">
-                              <div className="avatar flex-shrink-0 me-3">
-                                <img src="../assets/img/icons/unicons/repo.png" alt={repo.name} className="rounded" />
-                              </div>
-                              <div className="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div className="me-2">
-                                  <small className="text-muted d-block mb-1">{repo.language}</small>
-                                  <h6 className="mb-0">{repo.name}</h6>
-                                  <p className="text-muted">{repo.description}</p>
-                                </div>
-                                <div className="user-progress d-flex align-items-center gap-1">
-                                  <h6 className="mb-0">{repo.stars}</h6>
-                                  <span className="text-muted">Stars</span>
-                                </div>
-                                <div className="user-progress d-flex align-items-center gap-1">
-                                  <h6 className="mb-0">{repo.url}</h6>
-                                  <span className="text-muted">URL</span>
-                                </div>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+
                 </div>
 
 
                 <div class="card">
-                <h5 class="card-header">Trending Repositories</h5>
-                <div class="table-responsive text-nowrap">
-                  <table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Language</th>
-                        <th>Description</th>
-                        <th>Starts</th>
-                        <th>Link</th>
-                      </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                    {trendingRepos.map((repo, index) => (
-                    <tr>
-                        <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{repo.name}</strong></td>
-                        <td>{repo.name}</td>
-                        <td>
-                        {repo.name}
-                        </td>
-                        <td><span class="badge bg-label-primary me-1">{repo.stars}</span></td>
-                        <td>
-                        {repo.name}
-                        </td>
-                      </tr>
-                    ))}
-                    </tbody>
-                  </table>
+                  <h5 class="card-header">Trending Repositories</h5>
+                  <div class="table-responsive text-nowrap">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Language</th>
+                          <th>Description</th>
+                          <th>Starts</th>
+                          <th>Link</th>
+                        </tr>
+                      </thead>
+                      <tbody class="table-border-bottom-0">
+                        {trendingRepos.map((repo, index) => (
+                          <tr>
+                            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{repo.name}</strong></td>
+                            <td>{repo.language}</td>
+                            <td>
+                              {wordWrap(repo.description).map((line, i) => (
+                                <span key={i}>{line}<br /></span>
+                              ))}
+                            </td>
+                            <td><span class="badge bg-label-primary me-1">{repo.stars}</span></td>
+                            <td>
+                              <a href={repo.url}>"View {repo.name}"</a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-              <br/>
+                <br />
 
                 <div className="col-md-6 col-lg-4 mb-3">
                   <div className="card text-center">

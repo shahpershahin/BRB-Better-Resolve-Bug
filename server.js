@@ -23,14 +23,14 @@ async function fetchTrendingRepos(language = '', since = 'daily') {
           const description = $(element).find('p.col-9').text().trim();
           const stars = $(element).find('a[href*="/stargazers"]').text().trim();
           const language = $(element).find('span[itemprop="programmingLanguage"]').text().trim();
-          const url = $(element).find('h1.h3 a').attr('href');
+          const url = $(element).find('h2 a').attr('href');
 
           trendingRepos.push({
               "name": name,
               "description": description,
               "stars": stars,
               "language": language,
-              "url": `https://github.com${url}`
+              "url": `https://github.com/${url}`
           });
       });
 
