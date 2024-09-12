@@ -1,6 +1,36 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { toast } from 'react-toastify';
 
 function RegisterPage() {
+
+    const [name,setName] = useState("");
+    const [email,setEmail] = useState("");
+    const [password,setPassword] = useState("");
+
+    async function onregister(e)
+    {
+        e.preventDefault();
+        
+                const regdata={name,email,password}
+                try
+                {
+                    const resp =  await axios.post("http://localhost:9000/api/signup",regdata)
+                    if(resp.status===200)
+                    {
+                        toast.success(resp.data.msg);
+                    }
+                    else
+                    {
+                        toast(resp.data.msg);
+                    }
+                }
+                catch(err)
+                {
+                    toast.error(err.message);
+                }
+            
+    }
+
   return (
     <>
         <div className="container-xxl">
@@ -128,16 +158,6 @@ function RegisterPage() {
     
         </div>
       </div>
-    </div>
-
-    
-
-    <div className="buy-now">
-      <a
-        href="https://themeselection.com/products/sneat-bootstrap-html-admin-template/"
-        target="_blank"
-        className="btn btn-danger btn-buy-now"
-        >Upgrade to Pro</a>
     </div>
 
     </>

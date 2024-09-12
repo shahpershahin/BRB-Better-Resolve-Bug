@@ -259,12 +259,13 @@ function Home() {
                 </div>
 
 
-                <div class="card">
-                  <h5 class="card-header">Trending Repositories</h5>
-                  <div class="table-responsive text-nowrap">
-                    <table class="table table-striped">
+                <div className="card">
+                  <h5 className="card-header">Trending Repositories</h5>
+                  <div className="table-responsive text-nowrap">
+                    <table className="table table-striped">
                       <thead>
                         <tr>
+                          <th>Sr.No</th>
                           <th>Name</th>
                           <th>Language</th>
                           <th>Description</th>
@@ -272,17 +273,18 @@ function Home() {
                           <th>Link</th>
                         </tr>
                       </thead>
-                      <tbody class="table-border-bottom-0">
+                      <tbody className="table-border-bottom-0">
                         {trendingRepos.map((repo, index) => (
                           <tr>
-                            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{repo.name}</strong></td>
+                            <td>{index+1}</td>
+                            <td><i className="fab fa-angular fa-lg text-danger me-3"></i> <strong>{repo.name}</strong></td>
                             <td>{repo.language}</td>
                             <td>
                               {wordWrap(repo.description).map((line, i) => (
                                 <span key={i}>{line}<br /></span>
                               ))}
                             </td>
-                            <td><span class="badge bg-label-primary me-1">{repo.stars}</span></td>
+                            <td><span className="badge bg-label-primary me-1">{repo.stars}</span></td>
                             <td>
                               <a href={repo.url}>"View {repo.name}"</a>
                             </td>

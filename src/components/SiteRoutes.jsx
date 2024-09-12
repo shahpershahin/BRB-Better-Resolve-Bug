@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Home from './Home'
 import { Route, Routes } from 'react-router-dom'
 import Your_Projects from './Your_Projects'
@@ -10,6 +10,10 @@ import RegisterPage from './RegisterPage'
 import Upload_Projects from './Projects/Upload_Projects'
 
 function SiteRoutes() {
+
+  const [userLoged, setUserLoged] = useState(false);
+
+  
   return (
     <>
 
