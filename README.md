@@ -1,4 +1,4 @@
-# BRB: Better Bug Resolve
+# BRB: Better Resolve Bug
 
 BRB is a cutting-edge, developer-centric platform designed to reshape how developers connect, collaborate, and showcase their work. It offers a unified space where developers can publish their projects, making them visible to a global audience. This platform is a dynamic hub for recruiting team members, finding project partners, and expanding development teams.
 
