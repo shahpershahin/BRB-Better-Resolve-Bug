@@ -16,8 +16,10 @@ mongoose.connect('mongodb://localhost:27017/BRB', {
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173'
-})); 
+  origin: 'http://localhost:5173', // Adjust if needed
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+})); // Add this line to handle CORS
 app.use(bodyParser.json());
 
 // User Schema
