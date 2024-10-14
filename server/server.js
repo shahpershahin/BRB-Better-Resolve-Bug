@@ -10,7 +10,6 @@ const app = express();
 const port = 9000;
 const multer = require('multer');
 const path = require('path'); // Ensure you have this import for file handling
-
 mongoose.connect('mongodb://localhost:27017/BRB', {
   // Removed deprecated options
 }).then(() => console.log('Connected to MongoDB'))
@@ -110,68 +109,57 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
-
-
-
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads'); // Save files to "uploads" folder
+  destination: function (req, file, cb) {
+    cb(null, '../public/uploads');
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Rename file to avoid conflicts
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}_${file.originalname}`);
   }
 });
+const upload = multer({ storage: storage });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 1024 * 1024 * 10 }, // Max file size: 10MB
-  fileFilter: (req, file, cb) => {
-    const filetypes = /zip/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
 
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Only .zip files are allowed!'));
-    }
-  }
-});
-
-// Project Schema
 const projectSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  title: { type: String, required: true },
-  email: { type: String, required: true },
-  repository: { type: String, required: true },
-  phone: { type: String, required: true },
-  description: { type: String, required: true },
-  projectFile: { type: String, required: true }
+  name: { type: String,required:true, unique: true },
+  title: { type: String, required:true, unique: true },
+  email: { type: String, required:true },
+  repo: { type: String, unique: true },
+  phone: String,
+  description: { type: String, required:true },
+  filePath: { type: String, unique: true },  // To store the path of the uploaded file
 });
 
+// Create a Project model
 const Project = mongoose.model('Project', projectSchema);
 
-// API route to handle form submission
-app.post('/api/upload-project', upload.single('projectFile'), async (req, res) => {
-  const { name, title, email, repository, phone, description } = req.body;
-
+// API to upload project details
+app.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
-    const newProject = new Project({
+    const { name, title, email, repo, phone, description } = req.body;
+    const filePath = req.file ? req.file.path : null;
+
+    // Create a new project document
+    const project = new Project({
       name,
       title,
       email,
-      repository,
+      repo,
       phone,
       description,
-      projectFile: req.file.path
+      filePath,
     });
 
-    await newProject.save();
+    // Save project to MongoDB
+    await project.save();
+    
     res.status(200).json({ message: 'Project uploaded successfully!' });
   } catch (error) {
-    res.status(500).json({ message: 'Error uploading project.', error });
+    console.error(error);
+    res.status(500).json({ message: 'Error uploading project' });
   }
 });
+
 
 async function fetchTrendingRepos(language = '', since = 'daily') {
   const url = `https://github.com/trending?${language ? `language=${language}` : ''}${since ? `&since=${since}` : ''}`;
