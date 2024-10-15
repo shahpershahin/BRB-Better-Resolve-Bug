@@ -77,7 +77,8 @@ app.post('/api/login', async (req, res) => {
 
   try {
     // Check if user exists with the provided email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("username email password");
+    console.log(user)
     if (!user) {
       return res.status(400).json({ message: 'User not found.' });
     }
