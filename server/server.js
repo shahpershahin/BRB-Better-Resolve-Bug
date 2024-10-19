@@ -73,15 +73,20 @@ app.post('/api/register', async (req, res) => {
 
 // Login API Route
 app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body; // Destructure email and password from the request body
 
   try {
-    // Check if user exists with the provided email
-    const user = await User.findOne({ email }).select("username email password");
-    console.log(user)
-    if (!user) {
+    // Check if any user exists with the provided email
+    const users = await User.find({ email }).select("username email password"); // 'find' returns an array
+    console.log(users);
+
+    // If no users are found, return an error response
+    if (users.length === 0) {
       return res.status(400).json({ message: 'User not found.' });
     }
+
+    // Since 'find' returns an array, we assume the first match is the correct user
+    const user = users[0]; // You could add more checks if multiple users could exist with the same email (unlikely)
 
     // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -89,16 +94,19 @@ app.post('/api/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
-    // Store user information in session
+    // Store user information in session (user._id and user.username)
     req.session.userId = user._id;
-    req.session.username = user.username; // Optional: Store username in session
+    req.session.username = user.username; // Optional: Store username in session for further use
 
-    res.status(200).json({ message: 'Login successful!', user: { username: user.username, email: user.email } });
+    // Send success response back to the client
+    res.status(200).send({ message: 'Login successful!', user: { username: user.username, email: user.email } });
   } catch (error) {
-    console.error('Error logging in user:', error);
-    res.status(500).json({ message: 'Error logging in user.' });
+    console.error('Error logging in user:', error); // Log the error for debugging purposes
+    res.status(500).json({ message: 'Error logging in user.' }); // Send a 500 internal server error response
   }
 });
+
+
 
 // Logout API Route
 app.post('/api/logout', (req, res) => {
@@ -122,31 +130,32 @@ const upload = multer({ storage: storage });
 
 
 const projectSchema = new mongoose.Schema({
-  name: { type: String,required:true, unique: true },
-  title: { type: String, required:true, unique: true },
+  username: { type: String,required:true },
   email: { type: String, required:true },
-  repo: { type: String, unique: true },
   phone: String,
+  title: { type: String, required:true },
+  repository: { type: String, unique: true, unique: true },
   description: { type: String, required:true },
   filePath: { type: String, unique: true },  // To store the path of the uploaded file
+  createdAt: { type: Date, default: Date.now }
 });
 
 // Create a Project model
-const Project = mongoose.model('Project', projectSchema);
+const Project = mongoose.model('Projects', projectSchema);
 
 // API to upload project details
 app.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
-    const { name, title, email, repo, phone, description } = req.body;
+    const { username, email, phone, title, repository, description } = req.body;
     const filePath = req.file ? req.file.path : null;
 
     // Create a new project document
     const project = new Project({
-      name,
-      title,
+      username,
       email,
-      repo,
       phone,
+      title,
+      repository,
       description,
       filePath,
     });
@@ -154,12 +163,38 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     // Save project to MongoDB
     await project.save();
     
-    res.status(200).json({ message: 'Project uploaded successfully!' });
+    res.status(200).send({ message: 'Project uploaded successfully!' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error uploading project' });
+    res.status(500).send({ message: 'Error uploading project', error });
   }
 });
+
+
+// API to find projects by email
+// Fetch projects by email
+app.get('/api/projects', async (req, res) => {
+  try {
+    const { email } = req.query; // Get email from query parameters
+
+    if (!email) {
+      return res.status(400).send({ message: 'Email is required' });
+    }
+
+    // Find projects based on the email
+    const projects = await Project.find({ email });
+
+    if (projects.length === 0) {
+      return res.status(404).send({ message: 'No projects found for this email' });
+    }
+
+    res.status(200).send(projects); // Send back the found projects
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Error fetching projects', error });
+  }
+});
+
 
 
 async function fetchTrendingRepos(language = '', since = 'daily') {
