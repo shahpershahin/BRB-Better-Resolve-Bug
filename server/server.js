@@ -65,7 +65,7 @@ app.post('/api/register', async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json({ message: 'User registered successfully!' });
+    res.status(200).json({ message: 'User registered successfully!' });
   } catch (error) {
     res.status(500).json({ message: 'Error registering user.' });
   }
@@ -195,7 +195,37 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
+app.get('/api/allprojects', async (req, res) => {
+  try {
+    const projects = await Project.find({});
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching projects', error });
+  }
+});
 
+app.put('/api/projects/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, description, repo } = req.body;
+
+  try {
+    const updatedProject = await Project.findByIdAndUpdate(
+      id,
+      { title, description, repository: repo },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    res.json(updatedProject);
+  } catch (error) {
+    console.error('Error updating project:', error);
+    res.status(500).json({ error: 'Failed to update project' });
+  }
+});
 
 async function fetchTrendingRepos(language = '', since = 'daily') {
   const url = `https://github.com/trending?${language ? `language=${language}` : ''}${since ? `&since=${since}` : ''}`;
@@ -283,6 +313,41 @@ app.get('/api/most-starred-repos', async (req, res) => {
     res.status(500).json({ message: 'Error fetching repositories' });
   }
 });
+
+// Collaboration Request Schema
+const collaborationRequestSchema = new mongoose.Schema({
+  projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Projects', required: true },
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  message: { type: String },
+  joinerName: { type: String, required: true },  // Name of the person joining the project
+  projectOwnerName: { type: String, required: true },  // Name of the project owner
+  projectTitle: { type: String, required: true }  // Title of the project
+}, { timestamps: true });
+
+const CollaborationRequest = mongoose.model('CollaborationRequest', collaborationRequestSchema);
+
+// Route to create a new collaboration request
+app.post('/api/collaboration-requests', async (req, res) => {
+  const { projectId, message, joinerName, projectOwnerName, projectTitle } = req.body;
+
+  try {
+      const newRequest = new CollaborationRequest({
+          projectId,
+          message,
+          joinerName,
+          projectOwnerName,
+          projectTitle
+      });
+
+      await newRequest.save();
+      res.status(201).json({ message: 'Collaboration request sent successfully!', request: newRequest });
+  } catch (error) {
+      console.error("Error creating collaboration request:", error.message, error.stack);
+      res.status(500).json({ message: 'Error creating collaboration request.', error: error.message });
+  }
+});
+
+
 
 app.get('/', (req, res) => {
   res.send('Welcome to the BRB API!');
