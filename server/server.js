@@ -205,27 +205,6 @@ app.get('/api/allprojects', async (req, res) => {
   }
 });
 
-app.put('/api/projects/:id', async (req, res) => {
-  const { id } = req.params;
-  const { title, description, repo } = req.body;
-
-  try {
-    const updatedProject = await Project.findByIdAndUpdate(
-      id,
-      { title, description, repository: repo },
-      { new: true } // Return the updated document
-    );
-
-    if (!updatedProject) {
-      return res.status(404).json({ error: 'Project not found' });
-    }
-
-    res.json(updatedProject);
-  } catch (error) {
-    console.error('Error updating project:', error);
-    res.status(500).json({ error: 'Failed to update project' });
-  }
-});
 
 async function fetchTrendingRepos(language = '', since = 'daily') {
   const url = `https://github.com/trending?${language ? `language=${language}` : ''}${since ? `&since=${since}` : ''}`;
@@ -347,6 +326,16 @@ app.post('/api/collaboration-requests', async (req, res) => {
   }
 });
 
+app.get('/api/collaboration-requests-update', async (req, res) => {
+  const { username } = req.query;
+  try {
+    const projects = await CollaborationRequest.find({ projectOwnerName: username });
+    res.status(200).json(projects); // Ensure it always returns an array, even if empty
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 app.get('/', (req, res) => {
