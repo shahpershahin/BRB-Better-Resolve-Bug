@@ -25,10 +25,10 @@ function WriteBlog() {
   return (
     <div className="layout-wrapper layout-content-navbar">
       <div className="layout-container">
-        <div className="layout-page">
-          <div className="row mb-5" style={{ marginLeft: '2%', marginTop: '2%' }}>
-            <div className="col-md-6 col-lg-8">
-              <h6 className="mt-2 text-muted">Write Blog</h6>
+        <div className="layout-page d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+          <div className="row w-100" style={{ maxWidth: '1000px' }}>
+            <div className="col-12">
+              <h6 className="mt-2 text-muted text-center">Write Blog</h6>
               <div className="card mb-4">
                 <div className="card-body">
                   <form onSubmit={handleSubmit}>
@@ -54,7 +54,7 @@ function WriteBlog() {
                         onChange={handleContentChange}
                       ></textarea>
                     </div>
-                    <button type="submit" className="btn btn-primary">Save Blog</button>
+                    <button type="submit" className="btn btn-primary w-100">Publish</button>
                   </form>
                 </div>
               </div>

@@ -1,12 +1,17 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { Link } from 'react-router-dom';
-import Sidebar from './Sidebar';
 
 import axios from 'axios';
 
+import { userContext } from '../App';
+
 function Home() {
+
+  const { udata } = useContext(userContext);
+  const [projects, setProjects] = useState([]);
+  const [projectCount, setProjectCount] = useState(0);
+  // console.log(udata);
 
   const [trendingRepos, setTrendingRepos] = useState([]);
 
@@ -14,11 +19,32 @@ function Home() {
     // Fetch data from the API
     axios.get('http://localhost:9000/api/trending-repos')
       .then(response => {
-        console.log('Data fetched:', response.data); // Check the data structure here
+        // console.log('Data fetched:', response.data); // Check the data structure here
         setTrendingRepos(response.data);
       })
       .catch(error => console.error('Error fetching trending repos:', error));
   }, []);
+
+
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('http://localhost:9000/api/projects', {
+          params: { email: udata.email },
+        });
+        setProjects(response.data);
+        setProjectCount(response.data.length);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, [udata.email]);
+  
 
   function wordWrap(text, wordsPerLine = 8) {
     const words = text.split(' ');
@@ -159,7 +185,7 @@ function Home() {
                       <div className="d-flex align-items-end row">
                         <div className="col-sm-7">
                           <div className="card-body">
-                            <h5 className="card-title text-primary">Congratulations John! 🎉</h5>
+                            <h5 className="card-title text-primary">Congratulations {udata.username}! 🎉</h5>
                             <p className="mb-4">
                               You have done <span className="fw-bold">72%</span> more sales today. Check your new badge in
                               your profile.
@@ -195,26 +221,10 @@ function Home() {
                                   className="rounded"
                                 />
                               </div>
-                              <div className="dropdown">
-                                <button
-                                  className="btn p-0"
-                                  type="button"
-                                  id="cardOpt3"
-                                  data-bs-toggle="dropdown"
-                                  aria-haspopup="true"
-                                  aria-expanded="false"
-                                >
-                                  <i className="bx bx-dots-vertical-rounded"></i>
-                                </button>
-                                <div className="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
-                                  <a className="dropdown-item" href="javascript:void(0);">View More</a>
-                                  <a className="dropdown-item" href="javascript:void(0);">Delete</a>
-                                </div>
-                              </div>
+                              
                             </div>
-                            <span className="fw-semibold d-block mb-1">##</span>
+                            <span className="fw-semibold d-block mb-1">Project Joined</span>
                             <h3 className="card-title mb-2">##</h3>
-                            <small className="text-success fw-semibold"><i className="bx bx-up-arrow-alt"></i> ##</small>
                           </div>
                         </div>
                       </div>
@@ -229,26 +239,10 @@ function Home() {
                                   className="rounded"
                                 />
                               </div>
-                              <div className="dropdown">
-                                <button
-                                  className="btn p-0"
-                                  type="button"
-                                  id="cardOpt6"
-                                  data-bs-toggle="dropdown"
-                                  aria-haspopup="true"
-                                  aria-expanded="false"
-                                >
-                                  <i className="bx bx-dots-vertical-rounded"></i>
-                                </button>
-                                <div className="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
-                                  <a className="dropdown-item" href="javascript:void(0);">View More</a>
-                                  <a className="dropdown-item" href="javascript:void(0);">Delete</a>
-                                </div>
-                              </div>
+                              
                             </div>
-                            <span>Sales</span>
-                            <h3 className="card-title text-nowrap mb-1">##</h3>
-                            <small className="text-success fw-semibold"><i className="bx bx-up-arrow-alt"></i> ##</small>
+                            <span>Total Project</span>
+                            <h3 className="card-title text-nowrap mb-1">{projectCount}</h3>
                           </div>
                         </div>
                       </div>
@@ -276,7 +270,7 @@ function Home() {
                       <tbody className="table-border-bottom-0">
                         {trendingRepos.map((repo, index) => (
                           <tr>
-                            <td>{index+1}</td>
+                            <td>{index + 1}</td>
                             <td><i className="fab fa-angular fa-lg text-danger me-3"></i> <strong>{repo.name}</strong></td>
                             <td>{repo.language}</td>
                             <td>
