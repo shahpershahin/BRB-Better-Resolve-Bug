@@ -300,7 +300,8 @@ const collaborationRequestSchema = new mongoose.Schema({
   message: { type: String },
   joinerName: { type: String, required: true },  // Name of the person joining the project
   projectOwnerName: { type: String, required: true },  // Name of the project owner
-  projectTitle: { type: String, required: true }  // Title of the project
+  projectTitle: { type: String, required: true },  // Title of the project
+  joinedDate: { type: Date, default: null }
 }, { timestamps: true });
 
 const CollaborationRequest = mongoose.model('CollaborationRequest', collaborationRequestSchema);
@@ -337,6 +338,40 @@ app.get('/api/collaboration-requests-update', async (req, res) => {
   }
 });
 
+
+app.patch('/api/collaboration-request/:id/accept', async (req, res) => {
+  try {
+      const requestId = req.params.id;
+      const updatedRequest = await CollaborationRequest.findByIdAndUpdate(
+          requestId,
+          { 
+              status: 'approved',
+              joinedDate: new Date() // Set the current date when the request is accepted
+          },
+          { new: true }
+      );
+      res.json(updatedRequest);
+  } catch (error) {
+      res.status(500).json({ message: 'Error updating request' });
+  }
+});
+
+app.patch('/api/collaboration-request/:id/reject', async (req, res) => {
+  try {
+      const requestId = req.params.id;
+      const updatedRequest = await CollaborationRequest.findByIdAndUpdate(
+          requestId,
+          { 
+              status: 'rejected',
+              joinedDate: null
+          },
+          { new: true }
+      );
+      res.json(updatedRequest);
+  } catch (error) {
+      res.status(500).json({ message: 'Error updating request' });
+  }
+});
 
 app.get('/', (req, res) => {
   res.send('Welcome to the BRB API!');
