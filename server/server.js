@@ -394,6 +394,92 @@ app.get('/api/accpetedrequests', async (req, res) => {
   }
 });
 
+
+
+const blogSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  author: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const Blog = mongoose.model('Blog', blogSchema);
+
+app.post('/api/blogs', async (req, res) => {
+  const { title, content, author } = req.body;
+
+  try {
+    const newBlog = new Blog({ title, content, author });
+    await newBlog.save();
+    res.status(201).json({ message: 'Blog created successfully!', blog: newBlog });
+  } catch (error) {
+    console.error('Error creating blog:', error.message);
+    res.status(500).json({ message: 'Error creating blog.', error: error.message });
+  }
+});
+
+// Route to fetch all blog posts
+app.get('/api/blogs', async (req, res) => {
+  try {
+    const blogs = await Blog.find();
+    res.status(200).json(blogs);
+  } catch (error) {
+    console.error('Error fetching blogs:', error.message);
+    res.status(500).json({ message: 'Error fetching blogs.', error: error.message });
+  }
+});
+
+// Route to fetch a blog post by ID
+app.get('/api/blogs/:id', async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+    res.status(200).json(blog);
+  } catch (error) {
+    console.error('Error fetching blog:', error.message);
+    res.status(500).json({ message: 'Error fetching blog.', error: error.message });
+  }
+});
+
+// Route to update a blog post by ID
+app.patch('/api/blogs/:id', async (req, res) => {
+  const { title, content, author } = req.body;
+
+  try {
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      req.params.id,
+      { title, content, author, updatedAt: Date.now() },
+      { new: true }
+    );
+    if (!updatedBlog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+    res.status(200).json(updatedBlog);
+  } catch (error) {
+    console.error('Error updating blog:', error.message);
+    res.status(500).json({ message: 'Error updating blog.', error: error.message });
+  }
+});
+
+// Route to delete a blog post by ID
+app.delete('/api/blogs/:id', async (req, res) => {
+  try {
+    const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
+    if (!deletedBlog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+    res.status(200).json({ message: 'Blog deleted successfully!' });
+  } catch (error) {
+    console.error('Error deleting blog:', error.message);
+    res.status(500).json({ message: 'Error deleting blog.', error: error.message });
+  }
+});
+
+
+
 app.get('/', (req, res) => {
   res.send('Welcome to the BRB API!');
 });

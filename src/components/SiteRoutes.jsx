@@ -12,6 +12,7 @@ import ContributeToProject from './Projects/ContributeToProject';
 import Login from './Login';
 import Update_Project from './Projects/Update_Project';
 import Collaboratorjoined from './Projects/collaboratorjoined';
+import BlogDetail from './Blog/BlogDetail';
 
 function SiteRoutes() {
   const [userLoged, setUserLoged] = useState(false);
@@ -23,6 +24,7 @@ function SiteRoutes() {
       <Route path='/yourproject' element={<Your_Projects />} />
       <Route path='/readblog' element={<ReadBlog />} />
       <Route path='/writeblog' element={<WriteBlog />} />
+      <Route path="/readblog/:id" element={<BlogDetail />} />
       <Route path='/account' element={<Account />} />
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<RegisterPage />} />

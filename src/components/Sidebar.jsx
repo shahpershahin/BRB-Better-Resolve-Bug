@@ -124,7 +124,7 @@ function Sidebar() {
 
               </li>
               <li className="menu-item">
-                <Link to='/contributetoproject' className="menu-link">
+                <Link to='/joinproject' className="menu-link">
                   <div data-i18n="Without navbar">Contribute to Project</div>
                 </Link>
               </li>
