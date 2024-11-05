@@ -299,6 +299,8 @@ const collaborationRequestSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   message: { type: String },
   joinerName: { type: String, required: true },  // Name of the person joining the project
+  joinerEmail: { type: String, required: true },  // Email of the person joining the project
+  joinerPhoneNo: { type: String, required: true },  // PhoneNo of the person joining the project
   projectOwnerName: { type: String, required: true },  // Name of the project owner
   projectTitle: { type: String, required: true },  // Title of the project
   joinedDate: { type: Date, default: null }
@@ -308,13 +310,15 @@ const CollaborationRequest = mongoose.model('CollaborationRequest', collaboratio
 
 // Route to create a new collaboration request
 app.post('/api/collaboration-requests', async (req, res) => {
-  const { projectId, message, joinerName, projectOwnerName, projectTitle } = req.body;
+  const { projectId, message, joinerName, joinerEmail, joinerPhoneNo, projectOwnerName, projectTitle } = req.body;
 
   try {
       const newRequest = new CollaborationRequest({
           projectId,
           message,
           joinerName,
+          joinerEmail,
+          joinerPhoneNo,
           projectOwnerName,
           projectTitle
       });
@@ -370,6 +374,23 @@ app.patch('/api/collaboration-request/:id/reject', async (req, res) => {
       res.json(updatedRequest);
   } catch (error) {
       res.status(500).json({ message: 'Error updating request' });
+  }
+});
+
+app.get('/api/accpetedrequests', async (req, res) => {
+  const { projectId } = req.query; // Get projectId and status from query parameters
+
+  try {
+      // Find collaboration requests by projectId and status
+      const projects = await CollaborationRequest.find({ 
+        projectId, 
+        status: 'approved' 
+      });
+      
+      res.status(200).json(projects);
+  } catch (error) {
+      console.error('Error fetching collaboration requests:', error);
+      res.status(500).json({ message: 'Server error while fetching collaboration requests' });
   }
 });
 
