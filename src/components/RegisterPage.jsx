@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from "react-toastify";
-import { useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom'; 
 
 
 function RegisterPage() {
@@ -37,7 +37,7 @@ function RegisterPage() {
           <div className="card">
             <div className="card-body">
               <h4 className="mb-2">Adventure starts here 🚀</h4>
-              <p className="mb-4">Make your app management easy and fun!</p>
+              <p className="mb-4">Make your project collaboration easy and fun!</p>
 
               <form onSubmit={onRegister} className="mb-3">
                 <div className="mb-3">
@@ -95,7 +95,7 @@ function RegisterPage() {
               </form>
 
               <p className="text-center">
-                Already have an account? <a href="#">Sign in instead</a>
+                Already have an account? <Link to='/login'>Sign in instead</Link>
               </p>
             </div>
           </div>

@@ -11,6 +11,7 @@ function Home() {
   const { udata } = useContext(userContext);
   const [projects, setProjects] = useState([]);
   const [projectCount, setProjectCount] = useState(0);
+  const [loading, setLoading] = useState();
   // console.log(udata);
 
   const [trendingRepos, setTrendingRepos] = useState([]);
