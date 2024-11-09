@@ -395,6 +395,27 @@ app.get('/api/accpetedrequests', async (req, res) => {
 });
 
 
+app.get('/api/myacceptedprojects', async (req, res) => {
+  const { username } = req.query; // Get the username of the logged-in user
+
+  if (!username) {
+      return res.status(400).json({ message: 'Username is required' });
+  }
+
+  try {
+      // Find collaboration requests where the joiner's username matches and the status is 'accepted'
+      const acceptedProjects = await CollaborationRequest.find({
+          joinerName: username,
+          status: 'approved'
+      });
+
+      res.status(200).json(acceptedProjects); // Return the found projects
+  } catch (error) {
+      console.error('Error fetching accepted projects for user:', error);
+      res.status(500).json({ message: 'Server error while fetching accepted projects' });
+  }
+});
+
 
 const blogSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -484,7 +505,6 @@ app.get('/', (req, res) => {
   res.send('Welcome to the BRB API!');
 });
 
-//commit check
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
