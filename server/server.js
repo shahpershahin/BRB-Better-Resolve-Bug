@@ -499,6 +499,91 @@ app.delete('/api/blogs/:id', async (req, res) => {
   }
 });
 
+const messageSchema = new mongoose.Schema({
+  projectId: { type: String, required: true },
+  content: { type: String, required: true },
+  sender: { type: String, required: true },
+  recipient: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+  read: { type: Boolean, default: false }
+});
+
+const Message = mongoose.model('Message', messageSchema);
+
+// API Routes
+
+// Get all messages for a project
+app.get('/api/chat/:projectId', async (req, res) => {
+  try {
+    const messages = await Message.find({ 
+      projectId: req.params.projectId 
+    }).sort({ timestamp: 1 });
+    
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
+
+// Send a new message
+app.post('/api/chat/:projectId', async (req, res) => {
+  try {
+    const { content, sender, recipient } = req.body;
+    
+    const newMessage = new Message({
+      projectId: req.params.projectId,
+      content,
+      sender,
+      recipient,
+      read: false
+    });
+
+    const savedMessage = await newMessage.save();
+    res.status(201).json(savedMessage);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+// Mark messages as read
+app.put('/api/chat/:projectId/read', async (req, res) => {
+  try {
+    const { recipient } = req.body;
+    
+    await Message.updateMany(
+      {
+        projectId: req.params.projectId,
+        recipient: recipient,
+        read: false
+      },
+      { $set: { read: true } }
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking messages as read:', error);
+    res.status(500).json({ error: 'Failed to mark messages as read' });
+  }
+});
+
+// Optional: Get unread message count
+app.get('/api/chat/:projectId/unread/:username', async (req, res) => {
+  try {
+    const count = await Message.countDocuments({
+      projectId: req.params.projectId,
+      recipient: req.params.username,
+      read: false
+    });
+    
+    res.json({ unreadCount: count });
+  } catch (error) {
+    console.error('Error getting unread count:', error);
+    res.status(500).json({ error: 'Failed to get unread count' });
+  }
+});
+
 
 
 app.get('/', (req, res) => {

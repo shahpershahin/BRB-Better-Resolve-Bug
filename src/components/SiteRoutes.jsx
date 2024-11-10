@@ -15,6 +15,7 @@ import Collaboratorjoined from './Projects/collaboratorjoined';
 import BlogDetail from './Blog/BlogDetail';
 import { userContext } from '../App';
 import Joined_Project from './Projects/Joined_Project';
+import Chat from './Projects/Chat';
 
 function SiteRoutes() {
   const { udata } = useContext(userContext);
@@ -40,6 +41,7 @@ function SiteRoutes() {
           <Route path="/collaboratorjoined/:projectId" element={<Collaboratorjoined />} />
           <Route path="/joinproject" element={<ContributeToProject />} />
           <Route path="/joinedproject" element={<Joined_Project />} />
+          <Route path="/chat/:projectId/:projectOwner" element={<Chat />} />
           <Route path="/cms" element={<CMS />} />
         </>
       ) : (

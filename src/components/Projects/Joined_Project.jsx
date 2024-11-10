@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate
 import axios from 'axios';
 import { userContext } from '../../App';
 
@@ -6,6 +7,7 @@ function Joined_Project() {
     const { udata } = useContext(userContext);
     const [joinedProjects, setJoinedProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();  // Initialize useNavigate
 
     useEffect(() => {
         const fetchJoinedProjects = async () => {
@@ -30,6 +32,10 @@ function Joined_Project() {
         return <div>Loading...</div>;
     }
 
+    const handleChatClick = (projectId, projectOwner) => {
+        navigate(`/chat/${projectId}/${projectOwner}`);  // Use navigate to redirect
+    };
+
     return (
         <>
             <div className="layout-wrapper layout-content-navbar">
@@ -49,6 +55,7 @@ function Joined_Project() {
                                                     <th>Joined Date</th>
                                                     <th>Reason</th>
                                                     <th>Status</th>
+                                                    <th>Action</th>  {/* Add Action column for the button */}
                                                 </tr>
                                             </thead>
                                             <tbody className="table-border-bottom-0">
@@ -60,11 +67,19 @@ function Joined_Project() {
                                                             <td>{new Date(project.joinedDate).toLocaleString()}</td>
                                                             <td>{project.message || "No Reason"}</td>
                                                             <td><span className="badge bg-label-primary me-1">{project.status}</span></td>
+                                                            <td>
+                                                                <button 
+                                                                    className="btn btn-primary" 
+                                                                    onClick={() => handleChatClick(project.projectId, project.projectOwnerName)}
+                                                                >
+                                                                    Chat
+                                                                </button>
+                                                            </td>
                                                         </tr>
                                                     ))
                                                 ) : (
                                                     <tr>
-                                                        <td colSpan="7">No joined projects found.</td>
+                                                        <td colSpan="6">No joined projects found.</td>
                                                     </tr>
                                                 )}
                                             </tbody>
