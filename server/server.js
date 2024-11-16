@@ -78,7 +78,6 @@ app.post('/api/login', async (req, res) => {
   try {
     // Check if any user exists with the provided email
     const users = await User.find({ email }).select("username email password"); // 'find' returns an array
-    console.log(users);
 
     // If no users are found, return an error response
     if (users.length === 0) {
@@ -167,32 +166,6 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: 'Error uploading project', error });
-  }
-});
-
-
-app.get('/api/trending-repos', async (req, res) => {
-  try {
-    const response = await axios.get('https://trendshift.io/');
-    console.log(response.data);  // Check the raw HTML structure here
-    const $ = cheerio.load(response.data);
-    const trendingRepos = [];
-
-    $('article').each((index, element) => {
-      const repo = {
-        name: $(element).find('h3 a').text().trim(),
-        url: 'https://trendshift.io' + $(element).find('h3 a').attr('href'),
-        description: $(element).find('p').text().trim(),
-        language: $(element).find('[itemprop="programmingLanguage"]').text().trim(),
-        stars: $(element).find('.Counter').first().text().trim(),
-      };
-      trendingRepos.push(repo);
-    });
-
-    res.json(trendingRepos);
-  } catch (error) {
-    console.error('Error fetching trending repositories:', error);
-    res.status(500).json({ error: 'Failed to fetch trending repositories' });
   }
 });
 
@@ -552,7 +525,6 @@ app.get('/api/messages/unread/grouped', async (req, res) => {
   try {
     // Get the username from query parameters
     const username = req.query.username;  // Access the username correctly
-    console.log(username);
 
     if (!username) {
       return res.status(400).json({ message: 'User not found or not logged in' });

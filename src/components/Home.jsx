@@ -316,9 +316,12 @@ function Home() {
                                 ))}
                             </td>
                             <td><span className="badge bg-label-primary me-1">{repo.createdAt}</span></td>
-                            <td><button><a href={repo.url} target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-primary">view</a></button></td>
+                            <td>
+                              <a href={repo.repository} target="_blank"
+                                  rel="noopener noreferrer">
+                                  <button className="btn btn-primary">View</button>
+                              </a>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -328,7 +331,7 @@ function Home() {
                 <br />
 
                 <div className="card">
-                  <h5 className="card-header">Projects with Unread Chats</h5>
+                  <h5 className="card-header">Unread Chats</h5>
                   <div className="table-responsive text-nowrap">
                     <table className="table table-striped">
                       <thead>
