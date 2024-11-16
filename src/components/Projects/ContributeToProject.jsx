@@ -13,7 +13,9 @@ function ContributeToProject() {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('http://localhost:9000/api/allprojects');
+                const response = await axios.get('http://localhost:9000/api/allprojectstojoin',{
+                    params: { username:udata.username , email: udata.email}
+                });
                 setProjects(response.data);
             } catch (error) {
                 console.error('Error fetching projects:', error);
@@ -61,7 +63,7 @@ function ContributeToProject() {
                             <h4 className="fw-bold py-3 mb-4">
                                 <span className="text-muted fw-light">Dashboard/</span> Contribute to project
                             </h4>
-                            
+
                             <div className="row">
                                 {projects.map((project) => (
                                     <div key={project._id} className="col-md-4 mb-4">

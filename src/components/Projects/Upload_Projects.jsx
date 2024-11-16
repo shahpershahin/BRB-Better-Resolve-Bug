@@ -13,7 +13,7 @@ function Upload_Projects() {
     name: '',
     title: '',
     email: '',
-    repo: '',
+    repository: '',
     phone: '',
     description: '',
     file: null,
@@ -36,7 +36,7 @@ function Upload_Projects() {
     data.append('email', udata.email);
     data.append('phone', formData.phone);
     data.append('title', formData.title);
-    data.append('repo', formData.repo);
+    data.append('repository', formData.repository);
     data.append('description', formData.description);
     data.append('file', formData.file);
 
@@ -138,16 +138,16 @@ function Upload_Projects() {
                           </div>
 
                           <div className="row mb-3">
-                            <label className="col-sm-2 col-form-label" htmlFor="repo">Project Repository</label>
+                            <label className="col-sm-2 col-form-label" htmlFor="repository">Project Repository</label>
                             <div className="col-sm-10">
                               <input
                                 type="text"
                                 className="form-control"
-                                id="repo"
-                                name="repo"
+                                id="repository"
+                                name="repository"
                                 required
                                 placeholder="github.com/yourrepo"
-                                value={formData.repo}
+                                value={formData.repository}
                                 onChange={handleChange}
                               />
                             </div>

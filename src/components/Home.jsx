@@ -10,21 +10,30 @@ function Home() {
 
   const { udata } = useContext(userContext);
   const [projects, setProjects] = useState([]);
+  const [allprojects, setAllProjects] = useState([]);
   const [projectCount, setProjectCount] = useState(0);
   const [loading, setLoading] = useState();
-  // console.log(udata);
-
-  const [trendingRepos, setTrendingRepos] = useState([]);
+  const [unreadChatProjects, setUnreadChatProjects] = useState([]);
 
   useEffect(() => {
-    // Fetch data from the API
-    axios.get('http://localhost:9000/api/trending-repos')
-      .then(response => {
-        // console.log('Data fetched:', response.data); // Check the data structure here
-        setTrendingRepos(response.data);
-      })
-      .catch(error => console.error('Error fetching trending repos:', error));
-  }, []);
+    const fetchProjectsWithUnreadChats = async () => {
+      try {
+        if (!udata?.username) {
+          console.error('Username is not available');
+          return;
+        }
+        const response = await axios.get('http://localhost:9000/api/projects-with-unread-chats', {
+          params: { username: udata.username }, // Pass the username correctly
+        });
+        setUnreadChatProjects(response.data);
+        console.log('Unread Chat Projects:', response.data); // Log response here
+      } catch (error) {
+        console.error('Error fetching projects with unread chats:', error);
+      }
+    };
+
+    fetchProjectsWithUnreadChats();
+  }, [udata.username]); // Depend on username to refetch if it changes
 
 
 
@@ -35,6 +44,7 @@ function Home() {
           params: { email: udata.email },
         });
         setProjects(response.data);
+        console.log(projects);
         setProjectCount(response.data.length);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -43,9 +53,23 @@ function Home() {
       }
     };
 
+    const fetchAllProjects = async () => {
+      try {
+        const response = await axios.get('http://localhost:9000/api/allprojects');
+        setAllProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProjects();
+    fetchAllProjects();
   }, [udata.email]);
-  
+
+
+
 
   function wordWrap(text, wordsPerLine = 8) {
     const words = text.split(' ');
@@ -222,7 +246,7 @@ function Home() {
                                   className="rounded"
                                 />
                               </div>
-                              
+
                             </div>
                             <span className="fw-semibold d-block mb-1">Project Joined</span>
                             <h3 className="card-title mb-2">##</h3>
@@ -240,7 +264,7 @@ function Home() {
                                   className="rounded"
                                 />
                               </div>
-                              
+
                             </div>
                             <span>Total Project</span>
                             <h3 className="card-title text-nowrap mb-1">{projectCount}</h3>
@@ -255,34 +279,44 @@ function Home() {
 
 
                 <div className="card">
-                  <h5 className="card-header">Trending Repositories</h5>
+                  <h5 className="card-header">Latest Repositories</h5>
                   <div className="table-responsive text-nowrap">
                     <table className="table table-striped">
                       <thead>
                         <tr>
                           <th>Sr.No</th>
-                          <th>Name</th>
-                          <th>Language</th>
+                          <th>Owner</th>
+                          <th>Title</th>
                           <th>Description</th>
-                          <th>Starts</th>
-                          <th>Link</th>
+                          <th>Created At</th>
+                          <th>View</th>
                         </tr>
                       </thead>
                       <tbody className="table-border-bottom-0">
-                        {trendingRepos.map((repo, index) => (
-                          <tr>
+                        {allprojects.map((repo, index) => (
+                          <tr key={index}>
                             <td>{index + 1}</td>
-                            <td><i className="fab fa-angular fa-lg text-danger me-3"></i> <strong>{repo.name}</strong></td>
-                            <td>{repo.language}</td>
+                            <td><strong>{repo.username}</strong></td>
+                            <td>{repo.title}</td>
                             <td>
-                              {wordWrap(repo.description).map((line, i) => (
-                                <span key={i}>{line}<br /></span>
-                              ))}
+                              {repo.description
+                                .split(' ')
+                                .reduce((acc, word, idx) => {
+                                  const chunkIndex = Math.floor(idx / 9);
+                                  acc[chunkIndex] = acc[chunkIndex] ? acc[chunkIndex] + ' ' + word : word;
+                                  return acc;
+                                }, [])
+                                .map((chunk, idx) => (
+                                  <span key={idx}>
+                                    {chunk}
+                                    <br />
+                                  </span>
+                                ))}
                             </td>
-                            <td><span className="badge bg-label-primary me-1">{repo.stars}</span></td>
-                            <td>
-                              <a href={repo.url}>"View {repo.name}"</a>
-                            </td>
+                            <td><span className="badge bg-label-primary me-1">{repo.createdAt}</span></td>
+                            <td><button><a href={repo.url} target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-primary">view</a></button></td>
                           </tr>
                         ))}
                       </tbody>
@@ -291,6 +325,40 @@ function Home() {
                 </div>
                 <br />
 
+                <div className="card">
+                  <h5 className="card-header">Projects with Unread Chats</h5>
+                  <div className="table-responsive text-nowrap">
+                    <table className="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Sr.No</th>
+                          <th>Title</th>
+                          <th>Last Message At</th>
+                          <th>View Project</th>
+                        </tr>
+                      </thead>
+                      <tbody className="table-border-bottom-0">
+                        {unreadChatProjects.length > 0 ? (
+                          unreadChatProjects.map((project, index) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{project._id}</td>
+                              <td>{project.unreadCount}</td>
+                              <td>{project.projectDetails?.title}</td>
+                              <td>{project.projectDetails?.description}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr><td colSpan="5">No projects with unread chats</td></tr>
+                        )}
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <br />
+                <br />
                 <div className="col-md-6 col-lg-4 mb-3">
                   <div className="card text-center">
                     <div className="card-header">BLOGS</div>

@@ -31,14 +31,14 @@ function Collaboratorjoined() {
     }, [projectId]);
 
     // Function to handle chat button click
-    const handleChatClick = (collaboratorName) => {
-        navigate(`/chat/${projectId}/${collaboratorName}`);
+    const handleChatClick = (collaboratorName,projectTitle) => {
+        navigate(`/chat/${projectId}/${collaboratorName}/${projectTitle}`);
     };
 
     // Function to fetch unread message count
-    const fetchUnreadCount = async (projectId, recipient) => {
+    const fetchUnreadCount = async (projectId,projectTitle, recipient) => {
         try {
-            const response = await axios.get(`http://localhost:9000/api/chat/${projectId}/unread`, {
+            const response = await axios.get(`http://localhost:9000/api/chat/${projectId}/${projectTitle}}`, {
                 params: { recipient }
             });
             return response.data.unreadCount;
@@ -96,7 +96,7 @@ function Collaboratorjoined() {
                                                             <td>
                                                                 <button
                                                                     className="btn btn-primary btn-sm d-flex align-items-center gap-2"
-                                                                    onClick={() => handleChatClick(project.joinerName)}
+                                                                    onClick={() => handleChatClick(project.joinerName,project.projectTitle)}
                                                                 >
                                                                     <MessageCircle size={16} />
                                                                     Chat

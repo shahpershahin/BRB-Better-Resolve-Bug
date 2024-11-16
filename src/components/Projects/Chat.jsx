@@ -5,7 +5,7 @@ import { Send } from 'lucide-react';
 import axios from 'axios';
 
 const Chat = () => {
-  const { projectId, projectOwner } = useParams();
+  const { projectId, projectOwner, projectTitle } = useParams();
   const { udata } = useContext(userContext);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -15,13 +15,13 @@ const Chat = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`http://localhost:9000/api/chat/${projectId}`);
+        const response = await axios.get(`http://localhost:9000/api/chat/${projectId}/${projectTitle}`);
         setMessages(response.data);
         setLoading(false);
         
         // Mark messages as read
         if (response.data.length > 0) {
-          await axios.put(`http://localhost:9000/api/chat/${projectId}/read`, {
+          await axios.put(`http://localhost:9000/api/chat/${projectId}/${projectTitle}/read`, {
             recipient: udata.username
           });
         }
@@ -41,7 +41,7 @@ const Chat = () => {
     if (!newMessage.trim()) return;
 
     try {
-      const response = await axios.post(`http://localhost:9000/api/chat/${projectId}`, {
+      const response = await axios.post(`http://localhost:9000/api/chat/${projectId}/${projectTitle}`, {
         content: newMessage,
         sender: udata.username,
         recipient: projectOwner
@@ -68,7 +68,7 @@ const Chat = () => {
       <div className="card">
         <div className="card-header d-flex justify-content-between align-items-center">
           <h5 className="mb-0">Chat with {projectOwner}</h5>
-          <span className="text-muted">Project Chat</span>
+          <span className="text-muted">{projectTitle}</span>
         </div>
         
         <div className="card-body">

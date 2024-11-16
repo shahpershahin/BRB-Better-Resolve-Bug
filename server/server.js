@@ -134,7 +134,7 @@ const projectSchema = new mongoose.Schema({
   email: { type: String, required:true },
   phone: String,
   title: { type: String, required:true },
-  repository: { type: String, unique: true, unique: true },
+  repository: { type: String, required:true, unique: true },
   description: { type: String, required:true },
   filePath: { type: String, unique: true },  // To store the path of the uploaded file
   createdAt: { type: Date, default: Date.now }
@@ -171,8 +171,31 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 });
 
 
-// API to find projects by email
-// Fetch projects by email
+app.get('/api/trending-repos', async (req, res) => {
+  try {
+    const response = await axios.get('https://trendshift.io/');
+    console.log(response.data);  // Check the raw HTML structure here
+    const $ = cheerio.load(response.data);
+    const trendingRepos = [];
+
+    $('article').each((index, element) => {
+      const repo = {
+        name: $(element).find('h3 a').text().trim(),
+        url: 'https://trendshift.io' + $(element).find('h3 a').attr('href'),
+        description: $(element).find('p').text().trim(),
+        language: $(element).find('[itemprop="programmingLanguage"]').text().trim(),
+        stars: $(element).find('.Counter').first().text().trim(),
+      };
+      trendingRepos.push(repo);
+    });
+
+    res.json(trendingRepos);
+  } catch (error) {
+    console.error('Error fetching trending repositories:', error);
+    res.status(500).json({ error: 'Failed to fetch trending repositories' });
+  }
+});
+
 app.get('/api/projects', async (req, res) => {
   try {
     const { email } = req.query; // Get email from query parameters
@@ -205,93 +228,29 @@ app.get('/api/allprojects', async (req, res) => {
   }
 });
 
-
-async function fetchTrendingRepos(language = '', since = 'daily') {
-  const url = `https://github.com/trending?${language ? `language=${language}` : ''}${since ? `&since=${since}` : ''}`;
-
-  try {
-      const response = await axios.get(url);
-      const $ = cheerio.load(response.data);
-
-      const trendingRepos = [];
-      $('article.Box-row').each((i, element) => {
-          if (i >= 6) return false; // Limit to 6 repositories
-          
-          const name = $(element).find('h2 a').text().trim().replace(/\n/g, '').replace(/\s+/g, ' ');
-          const description = $(element).find('p.col-9').text().trim();
-          const stars = $(element).find('a[href*="/stargazers"]').text().trim();
-          const language = $(element).find('span[itemprop="programmingLanguage"]').text().trim();
-          const url = $(element).find('h2 a').attr('href');
-
-          trendingRepos.push({
-              "name": name,
-              "description": description,
-              "stars": stars,
-              "language": language,
-              "url": `https://github.com/${url}`
-          });
-      });
-
-      return trendingRepos;
-  } catch (error) {
-      console.error('Error fetching trending repositories:', error);
-      throw error;
-  }
-}
-
-
-app.get('/api/trending-repos', async (req, res) => {
-  try {
-      const repos = await fetchTrendingRepos('javascript', 'monthly');
-      res.json(repos);
-  } catch (error) {
-      res.status(500).json({ message: 'Error fetching repositories' });
-  }
-});
-
-
-async function fetchMostStarredRepos(language = '') {
-  const url = `https://github.com/search?q=${language ? `language:${language}` : ''}&type=repositories&s=stars&o=desc`;
+app.get('/api/allprojectstojoin', async (req, res) => {
+  const { username ,email} = req.query; // Get the username of the logged-in user
 
   try {
-    const response = await axios.get(url);
-    const $ = cheerio.load(response.data);
+    // Fetch all project IDs the user has already joined
+    const joinedProjectIds = await CollaborationRequest.find({
+      joinerName: username,
+      status: 'approved',
+    }).distinct('projectId'); // Extract only the `projectId` fields
 
-    const mostStarredRepos = [];
-    $('li.repo-list-item').each((i, element) => {
-      if (i >= 6) return false; // Limit to 6 repositories
-
-      const name = $(element).find('a.v-align-middle').text().trim();
-      const description = $(element).find('p.mb-1').text().trim();
-      const stars = $(element).find('a.Link--muted').first().text().trim();
-      const language = $(element).find('span[itemprop="programmingLanguage"]').text().trim();
-      const url = $(element).find('a.v-align-middle').attr('href');
-
-      mostStarredRepos.push({
-        name: name,
-        description: description,
-        stars: stars,
-        language: language,
-        url: `https://github.com${url}`,
-      });
+    // Fetch projects that are NOT in the joinedProjectIds
+    const availableProjects = await Project.find({
+      _id: { $nin: joinedProjectIds }, 
+      email: { $ne: email }// Exclude these project IDs
     });
 
-    return mostStarredRepos;
+    res.status(200).json(availableProjects);
   } catch (error) {
-    console.error('Error fetching most starred repositories:', error);
-    throw error;
-  }
-}
-
-// Express route for fetching the most starred repos
-app.get('/api/most-starred-repos', async (req, res) => {
-  try {
-    const repos = await fetchMostStarredRepos('javascript'); // Example with JavaScript
-    res.json(repos);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching repositories' });
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ message: 'Server error while fetching projects' });
   }
 });
+
 
 // Collaboration Request Schema
 const collaborationRequestSchema = new mongoose.Schema({
@@ -501,6 +460,7 @@ app.delete('/api/blogs/:id', async (req, res) => {
 
 const messageSchema = new mongoose.Schema({
   projectId: { type: String, required: true },
+  projectTitle: { type: String, required: true },
   content: { type: String, required: true },
   sender: { type: String, required: true },
   recipient: { type: String, required: true },
@@ -513,10 +473,10 @@ const Message = mongoose.model('Message', messageSchema);
 // API Routes
 
 // Get all messages for a project
-app.get('/api/chat/:projectId', async (req, res) => {
+app.get('/api/chat/:projectId/:projectTitle', async (req, res) => {
   try {
     const messages = await Message.find({ 
-      projectId: req.params.projectId 
+      projectId: req.params.projectId , projectTitle: req.params.projectTitle
     }).sort({ timestamp: 1 });
     
     res.json(messages);
@@ -527,12 +487,13 @@ app.get('/api/chat/:projectId', async (req, res) => {
 });
 
 // Send a new message
-app.post('/api/chat/:projectId', async (req, res) => {
+app.post('/api/chat/:projectId/:projectTitle', async (req, res) => {
   try {
     const { content, sender, recipient } = req.body;
     
     const newMessage = new Message({
       projectId: req.params.projectId,
+      projectTitle: req.params.projectTitle,
       content,
       sender,
       recipient,
@@ -548,13 +509,14 @@ app.post('/api/chat/:projectId', async (req, res) => {
 });
 
 // Mark messages as read
-app.put('/api/chat/:projectId/read', async (req, res) => {
+app.put('/api/chat/:projectId/:projectTitle/read', async (req, res) => {
   try {
     const { recipient } = req.body;
     
     await Message.updateMany(
       {
         projectId: req.params.projectId,
+        projectTitle: req.params.projectTitle,
         recipient: recipient,
         read: false
       },
@@ -573,6 +535,7 @@ app.get('/api/chat/:projectId/unread/:username', async (req, res) => {
   try {
     const count = await Message.countDocuments({
       projectId: req.params.projectId,
+      projectTitle: req.params.projectTitle,
       recipient: req.params.username,
       read: false
     });
@@ -583,6 +546,45 @@ app.get('/api/chat/:projectId/unread/:username', async (req, res) => {
     res.status(500).json({ error: 'Failed to get unread count' });
   }
 });
+
+app.get('/api/projects-with-unread-chats', async (req, res) => {
+  try {
+    // Assuming `udata.username` is available from a session, token, or request
+    const username = req.params.username; // Replace with your method to get the current user's username
+
+    const projectsWithUnreadChats = await Message.aggregate([
+      { 
+        $match: { 
+          recipient: username, // Match messages where recipient is the logged-in user
+          isRead: false // Only consider unread messages
+        } 
+      },
+      {
+        $group: {
+          _id: '$projectTitle', // Group by projectTitle
+          unreadCount: { $sum: 1 }, // Count the number of unread messages for each project
+        },
+      },
+      {
+        $lookup: {
+          from: 'projects', // Join with the projects collection
+          localField: '_id', // projectTitle in Message
+          foreignField: 'title', // Matching the field `title` in the projects collection
+          as: 'projectDetails', // Store the project details in `projectDetails`
+        },
+      },
+      { $unwind: '$projectDetails' }, // Flatten project details
+      { $sort: { unreadCount: -1 } }, // Sort by unreadCount (optional)
+    ]);
+
+    res.json(projectsWithUnreadChats);
+  } catch (error) {
+    console.error('Error fetching projects with unread chats:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
 
 
 

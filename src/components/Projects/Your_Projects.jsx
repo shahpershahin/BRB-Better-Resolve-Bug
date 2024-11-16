@@ -12,7 +12,7 @@ function Your_Projects() {
     const fetchProjects = async () => {
       try {
         const response = await axios.get('http://localhost:9000/api/projects', {
-          params: { email:udata.email },
+          params: { email:udata.email }
         });
         setProjects(response.data);
       } catch (error) {
@@ -30,6 +30,10 @@ function Your_Projects() {
   if (loading) {
     return <div>Loading...</div>;
   }
+
+  const handleChatClick = (projectId,projectTitle) => {
+    navigate(`/collaboratorjoined/${projectId}/${projectTitle}`);  // Use navigate to redirect
+};
 
   return (
     <>
@@ -59,15 +63,17 @@ function Your_Projects() {
                               <button type="button" className="btn btn-primary" style={{ marginRight: '10px' }}>Update Project</button>
                             </Link>
                               
-                            <Link to={`/collaboratorjoined/${project._id}`}>
+                            <Link to={`/collaboratorjoined/${project._id}/${project.title}`}>
                               <button type="button" className="btn btn-primary">Collaborators</button>
                             </Link>
 
                             <br />
                             <br />
+                            <a href={project.repository}>
                             <button type="button" className="btn btn-primary">
-                              <a href={project.repository}>View Repository</a>
+                              View Repository
                             </button>
+                            </a>
                           </div>
                         </div>
                       </div>

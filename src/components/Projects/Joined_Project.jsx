@@ -32,8 +32,8 @@ function Joined_Project() {
         return <div>Loading...</div>;
     }
 
-    const handleChatClick = (projectId, projectOwner) => {
-        navigate(`/chat/${projectId}/${projectOwner}`);  // Use navigate to redirect
+    const handleChatClick = (projectId, projectOwner,projectTitle) => {
+        navigate(`/chat/${projectId}/${projectOwner}/${projectTitle}`);  // Use navigate to redirect
     };
 
     return (
@@ -70,7 +70,7 @@ function Joined_Project() {
                                                             <td>
                                                                 <button 
                                                                     className="btn btn-primary" 
-                                                                    onClick={() => handleChatClick(project.projectId, project.projectOwnerName)}
+                                                                    onClick={() => handleChatClick(project.projectId, project.projectOwnerName, project.projectTitle)}
                                                                 >
                                                                     Chat
                                                                 </button>

@@ -38,10 +38,11 @@ function SiteRoutes() {
           <Route path="/account" element={<Account />} />
           <Route path="/uploadproject" element={<Upload_Project />} />
           <Route path="/updateproject" element={<Update_Project />} />
-          <Route path="/collaboratorjoined/:projectId" element={<Collaboratorjoined />} />
+          <Route path="/collaboratorjoined/:projectId/:projectTitle" element={<Collaboratorjoined />} />
           <Route path="/joinproject" element={<ContributeToProject />} />
           <Route path="/joinedproject" element={<Joined_Project />} />
           <Route path="/chat/:projectId/:projectOwner" element={<Chat />} />
+          <Route path="/chat/:projectId/:projectOwner/:projectTitle" element={<Chat />} />
           <Route path="/cms" element={<CMS />} />
         </>
       ) : (
