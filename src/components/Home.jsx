@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
 
 import { userContext } from '../App';
+import { MessageCircle } from 'lucide-react';
 
 function Home() {
 
@@ -14,27 +15,26 @@ function Home() {
   const [projectCount, setProjectCount] = useState(0);
   const [loading, setLoading] = useState();
   const [unreadChatProjects, setUnreadChatProjects] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProjectsWithUnreadChats = async () => {
+    const fetchUnreadChatProjects = async () => {
       try {
-        if (!udata?.username) {
-          console.error('Username is not available');
-          return;
-        }
-        const response = await axios.get('http://localhost:9000/api/projects-with-unread-chats', {
-          params: { username: udata.username }, // Pass the username correctly
+        // Make the API call to get unread chat projects grouped by projectTitle
+        const response = await axios.get('http://localhost:9000/api/messages/unread/grouped', {
+          params: { username: udata.username }
         });
+
+        // Set the fetched unread chat projects to the state
         setUnreadChatProjects(response.data);
-        console.log('Unread Chat Projects:', response.data); // Log response here
       } catch (error) {
-        console.error('Error fetching projects with unread chats:', error);
+        console.error('Error fetching unread chat projects:', error);
       }
     };
 
-    fetchProjectsWithUnreadChats();
-  }, [udata.username]); // Depend on username to refetch if it changes
-
+    // Fetch unread chat projects
+    fetchUnreadChatProjects();
+  }, [udata.username]);
 
 
   useEffect(() => {
@@ -69,7 +69,9 @@ function Home() {
   }, [udata.email]);
 
 
-
+  const handleChatClick = (projectId, collaboratorName, projectTitle) => {
+    navigate(`/chat/${projectId}/${collaboratorName}/${projectTitle}`);
+  };
 
   function wordWrap(text, wordsPerLine = 8) {
     const words = text.split(' ');
@@ -333,7 +335,9 @@ function Home() {
                         <tr>
                           <th>Sr.No</th>
                           <th>Title</th>
-                          <th>Last Message At</th>
+                          <th>Message</th>
+                          <th>Sender</th>
+                          <th>Sent At</th>
                           <th>View Project</th>
                         </tr>
                       </thead>
@@ -342,20 +346,29 @@ function Home() {
                           unreadChatProjects.map((project, index) => (
                             <tr key={index}>
                               <td>{index + 1}</td>
-                              <td>{project._id}</td>
-                              <td>{project.unreadCount}</td>
-                              <td>{project.projectDetails?.title}</td>
-                              <td>{project.projectDetails?.description}</td>
+                              <td>{project.projectTitle}</td>
+                              <td>{project.content}</td>
+                              <td>{project.sender}</td>
+                              <td>{project.timestamp}</td>
+                              <td>
+                                <button
+                                  className="btn btn-primary btn-sm d-flex align-items-center gap-2"
+                                  onClick={() => handleChatClick(project.projectId, project.sender, project.projectTitle)}
+                                >
+                                  <MessageCircle size={16} />
+                                  Chat
+                                </button>
+                              </td>
                             </tr>
                           ))
                         ) : (
-                          <tr><td colSpan="5">No projects with unread chats</td></tr>
+                          <tr><td colSpan="4">No projects with unread chats</td></tr>
                         )}
-
                       </tbody>
                     </table>
                   </div>
                 </div>
+
 
                 <br />
                 <br />

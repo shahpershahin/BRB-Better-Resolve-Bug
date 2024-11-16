@@ -547,45 +547,35 @@ app.get('/api/chat/:projectId/unread/:username', async (req, res) => {
   }
 });
 
-app.get('/api/projects-with-unread-chats', async (req, res) => {
+
+app.get('/api/messages/unread/grouped', async (req, res) => {
   try {
-    // Assuming `udata.username` is available from a session, token, or request
-    const username = req.params.username; // Replace with your method to get the current user's username
+    // Get the username from query parameters
+    const username = req.query.username;  // Access the username correctly
+    console.log(username);
 
-    const projectsWithUnreadChats = await Message.aggregate([
-      { 
-        $match: { 
-          recipient: username, // Match messages where recipient is the logged-in user
-          isRead: false // Only consider unread messages
-        } 
-      },
-      {
-        $group: {
-          _id: '$projectTitle', // Group by projectTitle
-          unreadCount: { $sum: 1 }, // Count the number of unread messages for each project
-        },
-      },
-      {
-        $lookup: {
-          from: 'projects', // Join with the projects collection
-          localField: '_id', // projectTitle in Message
-          foreignField: 'title', // Matching the field `title` in the projects collection
-          as: 'projectDetails', // Store the project details in `projectDetails`
-        },
-      },
-      { $unwind: '$projectDetails' }, // Flatten project details
-      { $sort: { unreadCount: -1 } }, // Sort by unreadCount (optional)
-    ]);
+    if (!username) {
+      return res.status(400).json({ message: 'User not found or not logged in' });
+    }
 
-    res.json(projectsWithUnreadChats);
+    // Fetch all unread messages for the given recipient (username)
+    const unreadMessages = await Message.find({
+      recipient: username,
+      read: false,  // Only unread messages
+    });
+
+    // If no unread messages found
+    if (unreadMessages.length === 0) {
+      return res.status(404).json({ message: 'No unread messages found' });
+    }
+
+    // Return the unread messages
+    res.json(unreadMessages);
   } catch (error) {
-    console.error('Error fetching projects with unread chats:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
-
-
-
 
 
 app.get('/', (req, res) => {
