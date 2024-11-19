@@ -36,6 +36,7 @@ function ContributeToProject() {
       try {
           const response = await axios.post('http://localhost:9000/api/collaboration-requests', {
               projectId: selectedProject._id,
+              projectRepo: selectedProject.repository,
               message: reason,
               joinerName: udata.username,
               joinerEmail: udata.email,

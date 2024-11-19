@@ -13,6 +13,7 @@ function Home() {
   const [projects, setProjects] = useState([]);
   const [allprojects, setAllProjects] = useState([]);
   const [projectCount, setProjectCount] = useState(0);
+  const [joinedProjects, setJoinedProjects] = useState(0);
   const [loading, setLoading] = useState();
   const [unreadChatProjects, setUnreadChatProjects] = useState([]);
   const navigate = useNavigate();
@@ -68,6 +69,24 @@ function Home() {
     fetchAllProjects();
   }, [udata.email]);
 
+  useEffect(() => {
+    const fetchJoinedProjects = async () => {
+        try {
+            const response = await axios.get('http://localhost:9000/api/myacceptedprojects', {
+                params: { username: udata.username },
+            });
+            setJoinedProjects(response.data);
+        } catch (error) {
+            console.error('Error fetching joined projects:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (udata?.username) {
+        fetchJoinedProjects();
+    }
+}, [udata]);
 
   const handleChatClick = (projectId, collaboratorName, projectTitle) => {
     navigate(`/chat/${projectId}/${collaboratorName}/${projectTitle}`);
@@ -251,7 +270,7 @@ function Home() {
 
                             </div>
                             <span className="fw-semibold d-block mb-1">Project Joined</span>
-                            <h3 className="card-title mb-2">##</h3>
+                            <h3 className="card-title mb-2">{joinedProjects.length}</h3>
                           </div>
                         </div>
                       </div>

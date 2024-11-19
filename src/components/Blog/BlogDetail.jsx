@@ -29,7 +29,7 @@ function BlogDetail() {
                         <div className="container">
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="navs-pills-top-home" role="tabpanel">
-                                    <h2>{blog.title}</h2>
+                                    <h2>author: {blog.author}</h2>
                                     {/* Render the blog content with HTML tags */}
                                     <div dangerouslySetInnerHTML={{ __html: blog.content }} />
                                     {/* <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }} /> */}

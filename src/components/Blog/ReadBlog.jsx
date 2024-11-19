@@ -26,7 +26,8 @@ function ReadBlog() {
               <div className="col-md-6 col-lg-4" key={blog._id}>
                 <div className="card mb-4">
                   <div className="card-body">
-                    <h5>{blog.title}</h5>
+                    <h5>Title: {blog.title}</h5>
+                    <h5>Author: {blog.author}</h5>
                     <p className="card-text" >{blog.content.substring(0, 100)}...</p>
                     <Link to={`/readblog/${blog._id}`} className="btn btn-primary">Read More</Link>
                   </div>

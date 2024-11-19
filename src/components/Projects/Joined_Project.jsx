@@ -55,7 +55,8 @@ function Joined_Project() {
                                                     <th>Joined Date</th>
                                                     <th>Reason</th>
                                                     <th>Status</th>
-                                                    <th>Action</th>  {/* Add Action column for the button */}
+                                                    <th>Message</th>  {/* Add Action column for the button */}
+                                                    <th>Message</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="table-border-bottom-0">
@@ -75,6 +76,7 @@ function Joined_Project() {
                                                                     Chat
                                                                 </button>
                                                             </td>
+                                                            <td>{project.repository}</td>
                                                         </tr>
                                                     ))
                                                 ) : (
