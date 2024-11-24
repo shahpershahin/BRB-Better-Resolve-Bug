@@ -85,7 +85,21 @@ function Collaboratorjoined() {
                                                             <td><strong>{project.projectTitle}</strong></td>
                                                             <td>{project.joinerName || "N/A"}</td>
                                                             <td>{new Date(project.joinedDate).toLocaleString()}</td>
-                                                            <td>{project.message || "No Reason"}</td>
+                                                            <td>
+                                                            <span className="">{project.message
+                                .split(' ')
+                                .reduce((acc, word, idx) => {
+                                  const chunkIndex = Math.floor(idx / 9);
+                                  acc[chunkIndex] = acc[chunkIndex] ? acc[chunkIndex] + ' ' + word : word;
+                                  return acc;
+                                }, [])
+                                .map((chunk, idx) => (
+                                  <span key={idx}>
+                                    {chunk}
+                                    <br />
+                                  </span>
+                                )) || "No Reason"}</span>
+                                                            </td>
                                                             <td>{project.joinerPhoneNo}</td>
                                                             <td>{project.joinerEmail}</td>
                                                             <td>

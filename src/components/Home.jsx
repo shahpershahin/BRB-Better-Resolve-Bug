@@ -71,22 +71,22 @@ function Home() {
 
   useEffect(() => {
     const fetchJoinedProjects = async () => {
-        try {
-            const response = await axios.get('http://localhost:9000/api/myacceptedprojects', {
-                params: { username: udata.username },
-            });
-            setJoinedProjects(response.data);
-        } catch (error) {
-            console.error('Error fetching joined projects:', error);
-        } finally {
-            setLoading(false);
-        }
+      try {
+        const response = await axios.get('http://localhost:9000/api/myacceptedprojects', {
+          params: { username: udata.username },
+        });
+        setJoinedProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching joined projects:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     if (udata?.username) {
-        fetchJoinedProjects();
+      fetchJoinedProjects();
     }
-}, [udata]);
+  }, [udata]);
 
   const handleChatClick = (projectId, collaboratorName, projectTitle) => {
     navigate(`/chat/${projectId}/${collaboratorName}/${projectTitle}`);
@@ -113,113 +113,10 @@ function Home() {
 
           {/* {<!-- Layout container --> */}
           <div className="layout-page">
-            {/* <!-- Navbar --> */}
 
-            <nav
-              className="layout-navbar container-fluid navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-              id="layout-navbar"
-            >
-              <div className="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-                <a className="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                  <i className="bx bx-menu bx-sm"></i>
-                </a>
-              </div>
 
-              <div className="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-                {/* <!-- Search --> */}
-                <div className="navbar-nav align-items-center">
-                  <div className="nav-item d-flex align-items-center">
-                    <i className="bx bx-search fs-4 lh-0"></i>
-                    <input
-                      type="text"
-                      className="form-control border-0 shadow-none"
-                      placeholder="Search..."
-                      aria-label="Search..."
-                    />
-                  </div>
-                </div>
-                {/* <!-- /Search --> */}
-
-                <ul className="navbar-nav flex-row align-items-center ms-auto">
-                  {/* <!-- Place this tag where you want the button to render. --> */}
-                  <li className="nav-item lh-1 me-3">
-                    <a
-                      className="github-button"
-                      href="https://github.com/themeselection/sneat-html-admin-template-free"
-                      data-icon="octicon-star"
-                      data-size="large"
-                      data-show-count="true"
-                      aria-label="Star themeselection/sneat-html-admin-template-free on GitHub"
-                    >Star</a>
-                  </li>
-
-                  {/* <!-- User --> */}
-                  <li className="nav-item navbar-dropdown dropdown-user dropdown">
-                    <a className="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                      <div className="avatar avatar-online">
-                        <img src="/assets/img/avatars/1.png" alt className="w-px-40 h-auto rounded-circle" />
-                      </div>
-                    </a>
-                    <ul className="dropdown-menu dropdown-menu-end">
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          <div className="d-flex">
-                            <div className="flex-shrink-0 me-3">
-                              <div className="avatar avatar-online">
-                                <img src="/assets/img/avatars/1.png" alt className="w-px-40 h-auto rounded-circle" />
-                              </div>
-                            </div>
-                            <div className="flex-grow-1">
-                              <span className="fw-semibold d-block">John Doe</span>
-                              <small className="text-muted">Admin</small>
-                            </div>
-                          </div>
-                        </a>
-                      </li>
-                      <li>
-                        <div className="dropdown-divider"></div>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          <i className="bx bx-user me-2"></i>
-                          <span className="align-middle">My Profile</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          <i className="bx bx-cog me-2"></i>
-                          <span className="align-middle">Settings</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          <span className="d-flex align-items-center align-middle">
-                            <i className="flex-shrink-0 bx bx-credit-card me-2"></i>
-                            <span className="flex-grow-1 align-middle">Billing</span>
-                            <span className="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20">4</span>
-                          </span>
-                        </a>
-                      </li>
-                      <li>
-                        <div className="dropdown-divider"></div>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="auth-login-basic.html">
-                          <i className="bx bx-power-off me-2"></i>
-                          <span className="align-middle">Log Out</span>
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                  {/* <!--/ User --> */}
-                </ul>
-              </div>
-            </nav>
-
-            {/* <!-- / Navbar --> */}
-
-            {/* <!-- Content wrapper --> */}
-
+            <br />
+            <br />
 
             <div className="content-wrapper">
 
@@ -231,13 +128,11 @@ function Home() {
                       <div className="d-flex align-items-end row">
                         <div className="col-sm-7">
                           <div className="card-body">
-                            <h5 className="card-title text-primary">Congratulations {udata.username}! 🎉</h5>
+                            <h5 className="card-title text-primary">Welcome {udata.username}! 🎉</h5>
                             <p className="mb-4">
-                              You have done <span className="fw-bold">72%</span> more sales today. Check your new badge in
-                              your profile.
+                              You are doing <span className="fw-bold">great!</span>
+                              <br /> BRB allows you to show, join and chat related to your projects. Read and write blogs related to your projects.
                             </p>
-
-                            <a href="javascript:;" className="btn btn-sm btn-outline-primary">View Badges</a>
                           </div>
                         </div>
                         <div className="col-sm-5 text-center text-sm-left">
@@ -337,8 +232,8 @@ function Home() {
                             <td><span className="badge bg-label-primary me-1">{repo.createdAt}</span></td>
                             <td>
                               <a href={repo.repository} target="_blank"
-                                  rel="noopener noreferrer">
-                                  <button className="btn btn-primary">View</button>
+                                rel="noopener noreferrer">
+                                <button className="btn btn-primary">View</button>
                               </a>
                             </td>
                           </tr>
@@ -391,7 +286,6 @@ function Home() {
                   </div>
                 </div>
 
-
                 <br />
                 <br />
                 <div className="col-md-6 col-lg-4 mb-3">
@@ -406,29 +300,16 @@ function Home() {
                   </div>
                 </div>
 
-                {/* <!-- / Content --> */}
-
-
-
-
-
-
-
-
-
                 <div className="content-backdrop fade"></div>
               </div>
-              {/* <!-- Content wrapper --> */}
             </div>
-            {/* <!-- / Layout page --> */}
           </div>
         </div>
 
 
-        {/* <!-- Overlay --> */}
         <div className="layout-overlay layout-menu-toggle"></div>
       </div>
-      {/* <!-- / Layout wrapper -->             */}
+      
 
     </>
   )

@@ -32,7 +32,7 @@ function Joined_Project() {
         return <div>Loading...</div>;
     }
 
-    const handleChatClick = (projectId, projectOwner,projectTitle) => {
+    const handleChatClick = (projectId, projectOwner, projectTitle) => {
         navigate(`/chat/${projectId}/${projectOwner}/${projectTitle}`);  // Use navigate to redirect
     };
 
@@ -56,7 +56,8 @@ function Joined_Project() {
                                                     <th>Reason</th>
                                                     <th>Status</th>
                                                     <th>Message</th>  {/* Add Action column for the button */}
-                                                    <th>Message</th>
+                                                    <th>Repository</th>
+                                                    <th>Project File</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="table-border-bottom-0">
@@ -66,17 +67,39 @@ function Joined_Project() {
                                                             <td><strong>{project.projectTitle}</strong></td>
                                                             <td>{project.projectOwnerName}</td>
                                                             <td>{new Date(project.joinedDate).toLocaleString()}</td>
-                                                            <td>{project.message || "No Reason"}</td>
+                                                            <td>
+                                                            <span className="">{project.message
+                                .split(' ')
+                                .reduce((acc, word, idx) => {
+                                  const chunkIndex = Math.floor(idx / 9);
+                                  acc[chunkIndex] = acc[chunkIndex] ? acc[chunkIndex] + ' ' + word : word;
+                                  return acc;
+                                }, [])
+                                .map((chunk, idx) => (
+                                  <span key={idx}>
+                                    {chunk}
+                                    <br />
+                                  </span>
+                                )) || "No Reason"}</span>
+                                                            </td>
                                                             <td><span className="badge bg-label-primary me-1">{project.status}</span></td>
                                                             <td>
-                                                                <button 
-                                                                    className="btn btn-primary" 
+                                                                <button
+                                                                    className="btn btn-primary"
                                                                     onClick={() => handleChatClick(project.projectId, project.projectOwnerName, project.projectTitle)}
                                                                 >
                                                                     Chat
                                                                 </button>
                                                             </td>
-                                                            <td>{project.repository}</td>
+                                                            <td><a href={project.projectRepo}><button className="btn btn-primary">View</button></a></td>
+                                                            <td>
+                                                                <a href={project.projectFilePath} download>
+                                                                <button className="btn btn-primary">
+                                                                    Download File
+                                                                    </button>
+                                                                </a>
+                                                            </td>
+
                                                         </tr>
                                                     ))
                                                 ) : (

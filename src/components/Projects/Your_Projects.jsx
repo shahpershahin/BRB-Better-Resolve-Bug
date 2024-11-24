@@ -54,14 +54,6 @@ function Your_Projects() {
                           <div className="card-body">
                             <h5 className="card-title">{project.title}</h5>
                             <p className="card-text">{project.description}</p>
-                            <Link
-                              to={{
-                                pathname: `/updateproject`,
-                                state: { projectId: project._id }, // Pass the projectId
-                              }}
-                            >
-                              <button type="button" className="btn btn-primary" style={{ marginRight: '10px' }}>Update Project</button>
-                            </Link>
                               
                             <Link to={`/collaboratorjoined/${project._id}/${project.title}`}>
                               <button type="button" className="btn btn-primary">Collaborators</button>

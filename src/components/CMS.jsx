@@ -92,7 +92,7 @@ function CMS() {
                             <div className="container-xxl flex-grow-1 container-p-y">
                                 <h4 className="fw-bold py-3 mb-4"><span className="text-muted fw-light">Home /</span> cms</h4>
                                 <div className="card">
-                                    <h5 className="card-header">Hoverable rows</h5>
+                                    <h5 className="card-header">Requests</h5>
                                     <div className="table-responsive text-nowrap">
                                         <table className="table table-hover">
                                             <thead>
@@ -113,7 +113,19 @@ function CMS() {
                                                             <td><strong>{project.projectTitle}</strong></td>
                                                             <td>{project.joinerName || "N/A"}</td>
                                                             <td>{new Date(project.createdAt).toLocaleString()}</td>
-                                                            <td><span className="">{project.message || "No Reason"}</span></td>
+                                                            <td><span className="">{project.message
+                                .split(' ')
+                                .reduce((acc, word, idx) => {
+                                  const chunkIndex = Math.floor(idx / 9);
+                                  acc[chunkIndex] = acc[chunkIndex] ? acc[chunkIndex] + ' ' + word : word;
+                                  return acc;
+                                }, [])
+                                .map((chunk, idx) => (
+                                  <span key={idx}>
+                                    {chunk}
+                                    <br />
+                                  </span>
+                                )) || "No Reason"}</span></td>
                                                             <td>{project.joinedDate ? new Date(project.joinedDate).toLocaleString() : "Not yet joined"}</td>
                                                             <td><span className="badge bg-label-primary me-1">{project.status || "Pending"}</span></td>
                                                             <td>

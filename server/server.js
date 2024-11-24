@@ -235,6 +235,8 @@ const collaborationRequestSchema = new mongoose.Schema({
   joinerPhoneNo: { type: String, required: true },  // PhoneNo of the person joining the project
   projectOwnerName: { type: String, required: true },  // Name of the project owner
   projectTitle: { type: String, required: true },  // Title of the project
+  projectRepo: { type: String, required: true },
+  projectFilePath: { type: String, required: true },
   joinedDate: { type: Date, default: null }
 }, { timestamps: true });
 
@@ -242,7 +244,7 @@ const CollaborationRequest = mongoose.model('CollaborationRequest', collaboratio
 
 // Route to create a new collaboration request
 app.post('/api/collaboration-requests', async (req, res) => {
-  const { projectId, message, joinerName, joinerEmail, joinerPhoneNo, projectOwnerName, projectTitle } = req.body;
+  const { projectId, message, joinerName, joinerEmail, joinerPhoneNo, projectOwnerName, projectTitle,projectRepo,projectFilePath } = req.body;
 
   try {
       const newRequest = new CollaborationRequest({
@@ -252,7 +254,9 @@ app.post('/api/collaboration-requests', async (req, res) => {
           joinerEmail,
           joinerPhoneNo,
           projectOwnerName,
-          projectTitle
+          projectTitle,
+          projectRepo,
+          projectFilePath
       });
 
       await newRequest.save();

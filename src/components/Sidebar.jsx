@@ -196,6 +196,16 @@ function Sidebar() {
               <div data-i18n="Basic">Project Joined</div>
             </Link>
           </li>
+
+          <li className="menu-header small text-uppercase">
+            <span className="menu-header-text">Chat</span>
+          </li>
+          <li className="menu-item">
+            <Link to='/messages' className='menu-link'>
+              <i className="menu-icon tf-icons bx bx-collection"></i>
+              <div data-i18n="Basic">Messages</div>
+            </Link>
+          </li>
          
           {/* <!-- Components --> */}
           <li className="menu-header small text-uppercase"><span className="menu-header-text">Blog</span></li>
@@ -220,14 +230,8 @@ function Sidebar() {
           <li className="menu-item">
               <Link to='/cms' className='menu-link'>
               <i className="menu-icon tf-icons bx bx-crown"></i>
-              <div data-i18n="Boxicons">CMS</div>
+              <div data-i18n="Boxicons">Collaborator Management</div>
               </Link>
-          </li>
-          <li className="menu-item">
-            <a href="icons-boxicons.html" className="menu-link">
-              <i className="menu-icon tf-icons bx bx-crown"></i>
-              <div data-i18n="Boxicons">Projects</div>
-            </a>
           </li>
         </ul>
       </aside>
