@@ -18,7 +18,7 @@ mongoose.connect('mongodb://localhost:27017/BRB', {
 // Middleware
 app.use(cors({
   origin: 'http://localhost:5173'
-})); 
+}));
 app.use(bodyParser.json());
 app.use(session({
   secret: 'your_secret_key', // Change this secret for production
@@ -73,35 +73,23 @@ app.post('/api/register', async (req, res) => {
 
 // Login API Route
 app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body; // Destructure email and password from the request body
-
-  try {
-    // Check if any user exists with the provided email
-    const users = await User.find({ email }).select("username email password"); // 'find' returns an array
-
-    // If no users are found, return an error response
+  const { email, password } = req.body; 
+  try {    
+    const users = await User.find({ email }).select("username email password");
     if (users.length === 0) {
       return res.status(400).json({ message: 'User not found.' });
     }
-
-    // Since 'find' returns an array, we assume the first match is the correct user
-    const user = users[0]; // You could add more checks if multiple users could exist with the same email (unlikely)
-
-    // Compare the provided password with the stored hashed password
+    const user = users[0];
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
-
-    // Store user information in session (user._id and user.username)
     req.session.userId = user._id;
-    req.session.username = user.username; // Optional: Store username in session for further use
-
-    // Send success response back to the client
+    req.session.username = user.username; 
     res.status(200).send({ message: 'Login successful!', user: { username: user.username, email: user.email } });
   } catch (error) {
-    console.error('Error logging in user:', error); // Log the error for debugging purposes
-    res.status(500).json({ message: 'Error logging in user.' }); // Send a 500 internal server error response
+    console.error('Error logging in user:', error); 
+    res.status(500).json({ message: 'Error logging in user.' });
   }
 });
 
@@ -129,12 +117,12 @@ const upload = multer({ storage: storage });
 
 
 const projectSchema = new mongoose.Schema({
-  username: { type: String,required:true },
-  email: { type: String, required:true },
+  username: { type: String, required: true },
+  email: { type: String, required: true },
   phone: String,
-  title: { type: String, required:true },
-  repository: { type: String, required:true, unique: true },
-  description: { type: String, required:true },
+  title: { type: String, required: true },
+  repository: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
   filePath: { type: String, unique: true },  // To store the path of the uploaded file
   createdAt: { type: Date, default: Date.now }
 });
@@ -147,8 +135,6 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
     const { username, email, phone, title, repository, description } = req.body;
     const filePath = req.file ? req.file.path : null;
-
-    // Create a new project document
     const project = new Project({
       username,
       email,
@@ -158,10 +144,8 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       description,
       filePath,
     });
-
-    // Save project to MongoDB
     await project.save();
-    
+
     res.status(200).send({ message: 'Project uploaded successfully!' });
   } catch (error) {
     console.error(error);
@@ -171,26 +155,20 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 
 app.get('/api/projects', async (req, res) => {
   try {
-    const { email } = req.query; // Get email from query parameters
-
+    const { email } = req.query; 
     if (!email) {
       return res.status(400).send({ message: 'Email is required' });
     }
-
-    // Find projects based on the email
     const projects = await Project.find({ email });
-
     if (projects.length === 0) {
       return res.status(404).send({ message: 'No projects found for this email' });
     }
-
-    res.status(200).send(projects); // Send back the found projects
+    res.status(200).send(projects);
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: 'Error fetching projects', error });
   }
 });
-
 app.get('/api/allprojects', async (req, res) => {
   try {
     const projects = await Project.find({});
@@ -200,23 +178,17 @@ app.get('/api/allprojects', async (req, res) => {
     res.status(500).json({ message: 'Error fetching projects', error });
   }
 });
-
 app.get('/api/allprojectstojoin', async (req, res) => {
-  const { username ,email} = req.query; // Get the username of the logged-in user
-
+  const { username, email } = req.query; 
   try {
-    // Fetch all project IDs the user has already joined
     const joinedProjectIds = await CollaborationRequest.find({
       joinerName: username,
       status: 'approved',
     }).distinct('projectId'); // Extract only the `projectId` fields
-
-    // Fetch projects that are NOT in the joinedProjectIds
     const availableProjects = await Project.find({
-      _id: { $nin: joinedProjectIds }, 
+      _id: { $nin: joinedProjectIds },
       email: { $ne: email }// Exclude these project IDs
     });
-
     res.status(200).json(availableProjects);
   } catch (error) {
     console.error('Error fetching projects:', error);
@@ -244,29 +216,26 @@ const CollaborationRequest = mongoose.model('CollaborationRequest', collaboratio
 
 // Route to create a new collaboration request
 app.post('/api/collaboration-requests', async (req, res) => {
-  const { projectId, message, joinerName, joinerEmail, joinerPhoneNo, projectOwnerName, projectTitle,projectRepo,projectFilePath } = req.body;
-
+  const { projectId, message, joinerName, joinerEmail, joinerPhoneNo, projectOwnerName, projectTitle, projectRepo, projectFilePath } = req.body;
   try {
-      const newRequest = new CollaborationRequest({
-          projectId,
-          message,
-          joinerName,
-          joinerEmail,
-          joinerPhoneNo,
-          projectOwnerName,
-          projectTitle,
-          projectRepo,
-          projectFilePath
-      });
-
-      await newRequest.save();
-      res.status(201).json({ message: 'Collaboration request sent successfully!', request: newRequest });
+    const newRequest = new CollaborationRequest({
+      projectId,
+      message,
+      joinerName,
+      joinerEmail,
+      joinerPhoneNo,
+      projectOwnerName,
+      projectTitle,
+      projectRepo,
+      projectFilePath
+    });
+    await newRequest.save();
+    res.status(201).json({ message: 'Collaboration request sent successfully!', request: newRequest });
   } catch (error) {
-      console.error("Error creating collaboration request:", error.message, error.stack);
-      res.status(500).json({ message: 'Error creating collaboration request.', error: error.message });
+    console.error("Error creating collaboration request:", error.message, error.stack);
+    res.status(500).json({ message: 'Error creating collaboration request.', error: error.message });
   }
 });
-
 app.get('/api/collaboration-requests-update', async (req, res) => {
   const { username } = req.query;
   try {
@@ -281,74 +250,67 @@ app.get('/api/collaboration-requests-update', async (req, res) => {
 
 app.patch('/api/collaboration-request/:id/accept', async (req, res) => {
   try {
-      const requestId = req.params.id;
-      const updatedRequest = await CollaborationRequest.findByIdAndUpdate(
-          requestId,
-          { 
-              status: 'approved',
-              joinedDate: new Date() // Set the current date when the request is accepted
-          },
-          { new: true }
-      );
-      res.json(updatedRequest);
+    const requestId = req.params.id;
+    const updatedRequest = await CollaborationRequest.findByIdAndUpdate(
+      requestId,
+      {
+        status: 'approved',
+        joinedDate: new Date() // Set the current date when the request is accepted
+      },
+      { new: true }
+    );
+    res.json(updatedRequest);
   } catch (error) {
-      res.status(500).json({ message: 'Error updating request' });
+    res.status(500).json({ message: 'Error updating request' });
   }
 });
 
 app.patch('/api/collaboration-request/:id/reject', async (req, res) => {
   try {
-      const requestId = req.params.id;
-      const updatedRequest = await CollaborationRequest.findByIdAndUpdate(
-          requestId,
-          { 
-              status: 'rejected',
-              joinedDate: null
-          },
-          { new: true }
-      );
-      res.json(updatedRequest);
+    const requestId = req.params.id;
+    const updatedRequest = await CollaborationRequest.findByIdAndUpdate(
+      requestId,
+      {
+        status: 'rejected',
+        joinedDate: null
+      },
+      { new: true }
+    );
+    res.json(updatedRequest);
   } catch (error) {
-      res.status(500).json({ message: 'Error updating request' });
+    res.status(500).json({ message: 'Error updating request' });
   }
 });
-
 app.get('/api/accpetedrequests', async (req, res) => {
   const { projectId } = req.query; // Get projectId and status from query parameters
 
   try {
-      // Find collaboration requests by projectId and status
-      const projects = await CollaborationRequest.find({ 
-        projectId, 
-        status: 'approved' 
-      });
-      
-      res.status(200).json(projects);
+    // Find collaboration requests by projectId and status
+    const projects = await CollaborationRequest.find({
+      projectId,
+      status: 'approved'
+    });
+
+    res.status(200).json(projects);
   } catch (error) {
-      console.error('Error fetching collaboration requests:', error);
-      res.status(500).json({ message: 'Server error while fetching collaboration requests' });
+    console.error('Error fetching collaboration requests:', error);
+    res.status(500).json({ message: 'Server error while fetching collaboration requests' });
   }
 });
-
-
 app.get('/api/myacceptedprojects', async (req, res) => {
   const { username } = req.query; // Get the username of the logged-in user
-
   if (!username) {
-      return res.status(400).json({ message: 'Username is required' });
+    return res.status(400).json({ message: 'Username is required' });
   }
-
   try {
-      // Find collaboration requests where the joiner's username matches and the status is 'accepted'
-      const acceptedProjects = await CollaborationRequest.find({
-          joinerName: username,
-          status: 'approved'
-      });
-
-      res.status(200).json(acceptedProjects); // Return the found projects
+    const acceptedProjects = await CollaborationRequest.find({
+      joinerName: username,
+      status: 'approved'
+    });
+    res.status(200).json(acceptedProjects); // Return the found projects
   } catch (error) {
-      console.error('Error fetching accepted projects for user:', error);
-      res.status(500).json({ message: 'Server error while fetching accepted projects' });
+    console.error('Error fetching accepted projects for user:', error);
+    res.status(500).json({ message: 'Server error while fetching accepted projects' });
   }
 });
 
@@ -365,7 +327,6 @@ const Blog = mongoose.model('Blog', blogSchema);
 
 app.post('/api/blogs', async (req, res) => {
   const { title, content, author } = req.body;
-
   try {
     const newBlog = new Blog({ title, content, author });
     await newBlog.save();
@@ -375,7 +336,6 @@ app.post('/api/blogs', async (req, res) => {
     res.status(500).json({ message: 'Error creating blog.', error: error.message });
   }
 });
-
 // Route to fetch all blog posts
 app.get('/api/blogs', async (req, res) => {
   try {
@@ -386,7 +346,6 @@ app.get('/api/blogs', async (req, res) => {
     res.status(500).json({ message: 'Error fetching blogs.', error: error.message });
   }
 });
-
 // Route to fetch a blog post by ID
 app.get('/api/blogs/:id', async (req, res) => {
   try {
@@ -400,11 +359,9 @@ app.get('/api/blogs/:id', async (req, res) => {
     res.status(500).json({ message: 'Error fetching blog.', error: error.message });
   }
 });
-
 // Route to update a blog post by ID
 app.patch('/api/blogs/:id', async (req, res) => {
   const { title, content, author } = req.body;
-
   try {
     const updatedBlog = await Blog.findByIdAndUpdate(
       req.params.id,
@@ -447,27 +404,26 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model('Message', messageSchema);
 
-// API Routes
+
 
 // Get all messages for a project
 app.get('/api/chat/:projectId/:projectTitle', async (req, res) => {
   try {
-    const messages = await Message.find({ 
-      projectId: req.params.projectId , projectTitle: req.params.projectTitle
+    const messages = await Message.find({
+      projectId: req.params.projectId, projectTitle: req.params.projectTitle
     }).sort({ timestamp: 1 });
-    
+
     res.json(messages);
   } catch (error) {
     console.error('Error fetching messages:', error);
     res.status(500).json({ error: 'Failed to fetch messages' });
   }
 });
-
 // Send a new message
 app.post('/api/chat/:projectId/:projectTitle', async (req, res) => {
   try {
     const { content, sender, recipient } = req.body;
-    
+
     const newMessage = new Message({
       projectId: req.params.projectId,
       projectTitle: req.params.projectTitle,
@@ -489,7 +445,7 @@ app.post('/api/chat/:projectId/:projectTitle', async (req, res) => {
 app.put('/api/chat/:projectId/:projectTitle/read', async (req, res) => {
   try {
     const { recipient } = req.body;
-    
+
     await Message.updateMany(
       {
         projectId: req.params.projectId,
@@ -516,7 +472,7 @@ app.get('/api/chat/:projectId/unread/:username', async (req, res) => {
       recipient: req.params.username,
       read: false
     });
-    
+
     res.json({ unreadCount: count });
   } catch (error) {
     console.error('Error getting unread count:', error);
